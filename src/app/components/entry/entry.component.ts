@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { User } from '../../models/user.model';
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
   selector: 'app-entry',
@@ -16,7 +18,11 @@ export class EntryComponent {
 
   joinChat() {
     if (this.username.trim()) {
-      localStorage.setItem('username', this.username);
+      const user: User = {
+        username: this.username,
+        id: uuidv4(),
+      };
+      localStorage.setItem('socket_user', JSON.stringify(user));
       this.router.navigate(['/chat']);
     }
   }

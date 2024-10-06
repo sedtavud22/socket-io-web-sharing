@@ -15,21 +15,27 @@
   </div>
   <div class="bg-white rounded-lg shadow-md p-4 h-96 overflow-y-auto mb-4">
     @for (message of messages; track message.id) {
-    <div class="mb-2">
-      <strong>{{ message.username }}:</strong> {{ message.text }}
+    <div
+      class="mb-2"
+      [ngClass]="{
+        'text-gray-500': message.type !== MessageType.Text,
+      }"
+    >
+      @switch (message.type) { @case (MessageType.Text) {
+      <strong>{{ message.user.username }}:</strong> {{ message.text }}
+      } @case (MessageType.Join) {
+      {{ message.user.username }} has joined the room } @case
+      (MessageType.Leave) { {{ message.user.username }} has left the room } }
     </div>
     }
   </div>
-  @if (typingUsers.length > 0){
-  <div class="text-sm text-gray-500 mb-2">
-    {{ typingUsers.join(", ") }}
-    {{ typingUsers.length === 1 ? "is" : "are" }} typing...
-  </div>
-  }
+  @if (typingUsers.length > 0) { @for (user of typingUsers; track user.id) {
+  <div class="text-sm text-gray-500 mb-2">{{ user.username }} is typing...</div>
+  } } @if (currentRoom) {
   <div class="flex">
     <input
       [(ngModel)]="newMessage"
-      (keyup)="onTyping()"
+      (input)="onTyping($event)"
       (keyup.enter)="sendMessage()"
       class="flex-grow mr-2 p-2 border rounded"
       placeholder="Type a message..."
@@ -41,4 +47,5 @@
       Send
     </button>
   </div>
+  }
 </div>

@@ -1,13 +1,15 @@
 import { Component, inject, PLATFORM_ID } from '@angular/core';
 import { SocketService } from '../../services/socket.service';
 import { FormsModule } from '@angular/forms';
-import { Message } from '../../models/message.model';
-import { isPlatformBrowser } from '@angular/common';
+import { Message, MessageType } from '../../models/message.model';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { User } from '../../models/user.model';
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css',
 })
@@ -16,14 +18,22 @@ export class ChatComponent {
   messages: Message[] = [];
   newMessage: string = '';
   currentRoom: string = '';
-  username: string = '';
-  typingUsers: string[] = [];
+  user: User = { username: 'Anonymous', id: uuidv4() };
+  typingUsers: User[] = [];
+  isUserTyping = false;
+
+  get MessageType() {
+    return MessageType;
+  }
 
   constructor(private socketService: SocketService) {}
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
-      this.username = localStorage.getItem('username') || 'Anonymous';
+      const userJSON = localStorage.getItem('socket_user');
+      if (userJSON) {
+        this.user = JSON.parse(userJSON);
+      }
     }
   }
 
@@ -32,7 +42,12 @@ export class ChatComponent {
     this.messages = [];
   }
 
+  leaveRoom() {
+    if (this.currentRoom) {
+    }
+  }
+
   sendMessage() {}
 
-  onTyping() {}
+  onTyping(event: Event) {}
 }
