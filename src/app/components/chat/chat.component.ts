@@ -1,4 +1,4 @@
-import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { Component, Inject, inject, PLATFORM_ID, signal } from '@angular/core';
 import { SocketService } from '../../services/socket.service';
 import { FormsModule } from '@angular/forms';
 import { Message, MessageType } from '../../models/message.model';
@@ -15,35 +15,37 @@ import { v4 as uuidv4 } from 'uuid';
 })
 export class ChatComponent {
   private readonly platformId = inject(PLATFORM_ID);
-  messages: Message[] = [];
-  newMessage: string = '';
-  currentRoom: string = '';
-  user: User = { username: 'Anonymous', id: uuidv4() };
-  typingUsers: User[] = [];
-  isUserTyping = false;
+  messages = signal<Message[]>([]);
+  newMessage = signal<string>('');
+  currentRoom = signal<string>('');
+  user = signal<User>({ username: 'Anonymous', id: uuidv4() });
+  typingUsers = signal<User[]>([]);
+  isUserTyping = signal<boolean>(false);
 
   get MessageType() {
     return MessageType;
   }
 
-  constructor(private socketService: SocketService) {}
+  constructor() {}
+
+  private readonly socketService = Inject(SocketService);
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       const userJSON = localStorage.getItem('socket_user');
       if (userJSON) {
-        this.user = JSON.parse(userJSON);
+        this.user.set(JSON.parse(userJSON));
       }
     }
   }
 
   joinRoom(room: string) {
-    this.currentRoom = room;
-    this.messages = [];
+    this.currentRoom.set(room);
+    this.messages.set([]);
   }
 
   leaveRoom() {
-    if (this.currentRoom) {
+    if (this.currentRoom()) {
     }
   }
 
